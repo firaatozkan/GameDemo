@@ -1,0 +1,7 @@
+[requires]
+sdl/2.26.1@#152c43fdd07f187f0b2a9150596c9c63
+sdl_image/2.0.5@#f22303512219a84a2d82438c8020d9fb
+
+[generators]
+CMakeDeps
+CMakeToolchain

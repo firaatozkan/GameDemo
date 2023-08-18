@@ -3,7 +3,7 @@
 struct Vec2D;
 class Animation;
 
-class Player : public IRenderable, public IUpdatable
+class Player : public IRenderable, public IUpdatable, public RigidBody
 {
 public:
     enum PlayerStates
@@ -11,6 +11,7 @@ public:
         IDLE,
         WALK,
         JUMP,
+        RUN,
         
         NUM_OF_PLAYER_STATES
     };
@@ -26,11 +27,4 @@ private:
     PlayerStates m_currentState {IDLE};
     long long m_lastDuration {0};
     Animation* m_animationArray[NUM_OF_PLAYER_STATES];
-
-    Vec2D m_forceVector;
-    Vec2D m_frictionVector;
-    
-    Vec2D m_accelerationVec;
-    Vec2D m_velocityVec;
-    Vec2D m_positionVec;
 };

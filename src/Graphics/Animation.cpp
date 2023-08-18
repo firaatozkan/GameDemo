@@ -1,7 +1,7 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
-#include "Animation.hpp"
+#include "Graphics/Animation.hpp"
 
 Animation::Animation(SDL_Renderer& rendererRef,
                      const char* filePath,

@@ -1,9 +1,9 @@
 #include <chrono>
 #include <stdexcept>
 #include <SDL2/SDL.h>
-#include "GameWindow.hpp"
-#include "AbstractGameState.hpp"
-#include "Level_1.hpp"
+#include "Core/GameWindow.hpp"
+#include "Core/AbstractGameState.hpp"
+#include "Core/Level_1.hpp"
 
 GameWindow::GameWindow()
 {
@@ -44,20 +44,24 @@ void GameWindow::run()
 
     m_currentState = new Level_1(*m_renderer);
 
-    Uint32 startTime;
+    Uint32 startTime = SDL_GetTicks();;
     Uint32 endTime;
+    Uint32 deltaTime;
 
     while (m_gameRunning)
     {
+        endTime = SDL_GetTicks();
+        deltaTime = endTime - startTime;
         startTime = SDL_GetTicks();
 
         while (SDL_PollEvent(&event))
             m_currentState->handleInput(event, m_gameRunning);
 
+        m_currentState->updateState(deltaTime);
+
         m_currentState->renderObjects();
 
-        endTime = SDL_GetTicks();
-
-        m_currentState->updateState(endTime - startTime);
+        if (deltaTime < 1000 / 60)
+            SDL_Delay((1000 / 60) - deltaTime);
     }
 }

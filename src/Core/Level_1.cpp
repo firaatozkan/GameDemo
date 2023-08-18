@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
-#include "AbstractGameState.hpp"
-#include "Level_1.hpp"
-#include "IRenderable.hpp"
-#include "IUpdatable.hpp"
-#include "Vec2D.hpp"
-#include "Player.hpp"
+#include "Core/AbstractGameState.hpp"
+#include "Core/Level_1.hpp"
+#include "Physics/Vec2D.hpp"
+#include "Physics/RigidBody.hpp"
+#include "Graphics/IRenderable.hpp"
+#include "Physics/IUpdatable.hpp"
+#include "Core/Player.hpp"
 
 Level_1::Level_1(SDL_Renderer& rendererRef)
     : AbstractGameState(rendererRef)

@@ -11,10 +11,10 @@
 Player::Player(SDL_Renderer& rendererRef)
     : RigidBody(50.0f)
 {
-    m_animationArray[IDLE] = new Animation(rendererRef, R"(C:\Users\foska\Cpp\GameDemo\assets\Archer\Idle.png)", 6);
-    m_animationArray[WALK] = new Animation(rendererRef, R"(C:\Users\foska\Cpp\GameDemo\assets\Archer\Walk.png)", 8);
-    m_animationArray[JUMP] = new Animation(rendererRef, R"(C:\Users\foska\Cpp\GameDemo\assets\Archer\Jump.png)", 9);
-    m_animationArray[RUN] = new Animation(rendererRef, R"(C:\Users\foska\Cpp\GameDemo\assets\Archer\Run.png)", 8);
+    m_animationArray[IDLE] = new Animation(rendererRef, PROJECT_SOURCE_DIR"/assets/Archer/Idle.png", 6);
+    m_animationArray[WALK] = new Animation(rendererRef, PROJECT_SOURCE_DIR"/assets/Archer/Walk.png", 8);
+    m_animationArray[JUMP] = new Animation(rendererRef, PROJECT_SOURCE_DIR"/assets/Archer/Jump.png", 9);
+    m_animationArray[RUN] = new Animation(rendererRef, PROJECT_SOURCE_DIR"/assets/Archer/Run.png", 8);
 }
 
 Player::~Player()

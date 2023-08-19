@@ -44,7 +44,7 @@ void GameWindow::run()
 
     m_currentState = new Level_1(*m_renderer);
 
-    Uint32 startTime = SDL_GetTicks();;
+    Uint32 startTime = SDL_GetTicks();
     Uint32 endTime;
     Uint32 deltaTime;
 

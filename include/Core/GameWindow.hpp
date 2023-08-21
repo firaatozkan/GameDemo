@@ -17,5 +17,6 @@ private:
     SDL_Renderer* m_renderer {nullptr};
 
     bool m_gameRunning {false};
+    
     AbstractGameState* m_currentState {nullptr};
 };

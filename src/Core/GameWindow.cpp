@@ -2,8 +2,8 @@
 #include <stdexcept>
 #include <SDL2/SDL.h>
 #include "Core/GameWindow.hpp"
-#include "Core/AbstractGameState.hpp"
-#include "Core/Level_1.hpp"
+#include "Core/Levels/BaseGameLevel.hpp"
+#include "Core/Levels/Level_1.hpp"
 
 GameWindow::GameWindow()
 {
@@ -38,11 +38,11 @@ GameWindow::~GameWindow()
 
 void GameWindow::run()
 {
+    m_currentState = new Level_1(*m_renderer);
+
     m_gameRunning = true;
 
     SDL_Event event;
-
-    m_currentState = new Level_1(*m_renderer);
 
     Uint32 startTime = SDL_GetTicks();
     Uint32 endTime;

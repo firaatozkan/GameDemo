@@ -1,16 +1,20 @@
-#include <chrono>
 #include <stdexcept>
 #include <SDL2/SDL.h>
 #include "Core/GameWindow.hpp"
-#include "Core/Levels/BaseGameLevel.hpp"
-#include "Core/Levels/Level_1.hpp"
+#include "States/Levels/Level_1.hpp"
 
 GameWindow::GameWindow()
 {
-    if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         throw std::runtime_error("Couldn't initialize SDL!");
 
-    m_window = SDL_CreateWindow("Main Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,800, 600, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow("Game",
+                                SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED,
+                                800,
+                                600,
+                                SDL_WINDOW_SHOWN);
+
     if (!m_window)
     {
         SDL_Quit();
@@ -24,13 +28,12 @@ GameWindow::GameWindow()
         SDL_Quit();
         throw std::runtime_error("Couldn't create renderer!");
     }
+
+    m_currentState = std::make_unique<Level_1>(*m_renderer);
 }
 
 GameWindow::~GameWindow()
 {
-    if (m_currentState)
-        delete m_currentState;
-
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -38,30 +41,24 @@ GameWindow::~GameWindow()
 
 void GameWindow::run()
 {
-    m_currentState = new Level_1(*m_renderer);
-
-    m_gameRunning = true;
+    unsigned int startTime = SDL_GetTicks();
+    unsigned int deltaTime;
 
     SDL_Event event;
 
-    Uint32 startTime = SDL_GetTicks();
-    Uint32 endTime;
-    Uint32 deltaTime;
-
     while (m_gameRunning)
     {
-        endTime = SDL_GetTicks();
-        deltaTime = endTime - startTime;
-        startTime = SDL_GetTicks();
-
         while (SDL_PollEvent(&event))
-            m_currentState->handleInput(event, m_gameRunning);
+            m_currentState->handleInput(event);
+
+        deltaTime = SDL_GetTicks() - startTime;
+        startTime = SDL_GetTicks();
 
         m_currentState->updateState(deltaTime);
 
-        m_currentState->renderObjects();
+        m_currentState->renderState();
 
-        if (deltaTime < 1000 / 60)
+        if (deltaTime < (1000 / 60))
             SDL_Delay((1000 / 60) - deltaTime);
     }
 }

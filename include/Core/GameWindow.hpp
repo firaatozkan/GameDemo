@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
+
 struct SDL_Window;
 struct SDL_Renderer;
 
-class AbstractGameState;
+class AbstractState;
 
 class GameWindow
 {
@@ -16,7 +18,6 @@ private:
     SDL_Window* m_window {nullptr};
     SDL_Renderer* m_renderer {nullptr};
 
-    bool m_gameRunning {false};
-    
-    AbstractGameState* m_currentState {nullptr};
+    bool m_gameRunning {true};
+    std::unique_ptr<AbstractState> m_currentState;
 };

@@ -1,6 +1,6 @@
 #include "Core/GameWindow.hpp"
 
-int main(void)
+int main()
 {
     GameWindow().run();
 }

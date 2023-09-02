@@ -17,3 +17,5 @@ target_link_libraries(
     SDL2::SDL2
     SDL2_image::SDL2_image
 )
+
+add_compile_definitions(ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets/")

@@ -5,19 +5,29 @@
 struct SDL_Window;
 struct SDL_Renderer;
 
-class AbstractState;
-
-class GameWindow
+namespace States
 {
-public:
-    GameWindow();
-    ~GameWindow();
-    void run();
+    class AbstractState;
+}
 
-private:
-    SDL_Window* m_window {nullptr};
-    SDL_Renderer* m_renderer {nullptr};
+namespace Core
+{
+    class GameWindow
+    {
+    private:
+        GameWindow();
+    public:
+        ~GameWindow();
+        static GameWindow& get();
+        void run();
 
-    bool m_gameRunning {true};
-    std::unique_ptr<AbstractState> m_currentState;
-};
+        void quit();
+        SDL_Renderer* getRenderer() const;
+
+    private:
+        SDL_Window* m_window {nullptr};
+
+        bool m_gameRunning {true};
+        std::unique_ptr<States::AbstractState> m_currentState;
+    };
+}

@@ -1,39 +1,36 @@
 #pragma once
 
-class World;
-class BaseComponent;
-class BaseRenderableComponent;
-class BaseUpdatableComponent;
+#include <memory>
+#include <typeindex>
+#include <unordered_map>
 
-class Entity
+namespace ECS
 {
-public:
-    Entity(World& worldRef) : m_worldRef(worldRef) {}
-    ~Entity() = default;
+    class Component;
 
-    template <typename T, typename... Args>
-    std::enable_if_t<std::is_base_of_v<BaseComponent, T>, void> addComponent(Args&&... args)
+    class Entity
     {
-        auto component = std::make_unique<T>(*this, std::forward<Args>(args)...);
+    public:
+        Entity() = default;
+        virtual ~Entity() = default;
 
-        if constexpr (std::is_base_of_v<BaseRenderableComponent, T>)
-            m_worldRef.getRenderSystem().registerComponent(*this, std::move(component));
+        template <typename T, typename... Args, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+        T& addComponent(Args&&... args)
+        {
+            m_componentMap.emplace(typeid(T), std::make_unique<T>(*this, std::forward<Args>(args)...));
+            return *(reinterpret_cast<T*>(m_componentMap[typeid(T)].get()));
+        }
+        
+        template <typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+        T& getComponent()
+        {
+            return *(reinterpret_cast<T*>(m_componentMap[typeid(T)].get()));
+        }
 
-        else if constexpr (std::is_base_of_v<BaseUpdatableComponent, T>)
-            m_worldRef.getUpdateSystem().registerComponent(*this, std::move(component));
-            
-    }
+        std::unordered_map<std::type_index, std::unique_ptr<Component>>& getComponentMap() { return m_componentMap; }
+        const std::unordered_map<std::type_index, std::unique_ptr<Component>>& getComponentMap() const{ return m_componentMap; }
 
-    template <typename T>
-    std::enable_if_t<std::is_base_of_v<BaseComponent, T>, T*> getComponent()
-    {
-        if constexpr (std::is_base_of_v<BaseRenderableComponent, T>)
-            return m_worldRef.getRenderSystem().lookupComponent<T>(*this);
-            
-        else if constexpr (std::is_base_of_v<BaseUpdatableComponent, T>)
-            return m_worldRef.getUpdateSystem().lookupComponent<T>(*this);
-    }
-
-private:
-    World& m_worldRef;
-};
+    private:
+        std::unordered_map<std::type_index, std::unique_ptr<Component>> m_componentMap;
+    };
+}

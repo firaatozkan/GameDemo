@@ -2,5 +2,5 @@
 
 int main()
 {
-    GameWindow().run();
+    Core::GameWindow::get().run();
 }

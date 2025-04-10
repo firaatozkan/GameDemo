@@ -1,5 +1,4 @@
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
+find_package(SFML REQUIRED)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src *.cpp)
 
@@ -14,8 +13,5 @@ target_include_directories(
 target_link_libraries(
     GameDemo
     PRIVATE
-    SDL2::SDL2
-    SDL2_image::SDL2_image
+    sfml::sfml
 )
-
-add_compile_definitions(ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets/")

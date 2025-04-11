@@ -24,6 +24,7 @@ void GameWindow::run()
 
     Tile tile;
     Player player;
+    Player player2(300);
     auto& camera = Camera::get();
 
     while (m_window.isOpen())
@@ -39,14 +40,20 @@ void GameWindow::run()
 
         if (tile.isColliding(player))
             tile.applyCollision(player);
+        if (tile.isColliding(player2))
+            tile.applyCollision(player2);
+        if (player.isColliding(player2))
+            player.applyCollision(player2);
 
         const float deltaTime = clock.restart().asSeconds();
         player.update(deltaTime);
+        player2.update(deltaTime);
         camera.update(player);
         
         m_window.clear();
         tile.draw();
         player.draw();
+        player2.draw();
         m_window.display();
     }
 }

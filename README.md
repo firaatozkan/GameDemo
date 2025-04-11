@@ -17,8 +17,7 @@ Before using the framework, ensure you have the following dependencies installed
 
 - **C++ Compiler:** A C++ compiler with support for C++17.
 - **CMake:** CMake build-system to handle building.
-- **SDL2 Library:** The Simple DirectMedia Layer (SDL2) library for windowing and event handling.
-- **SDL_image Library:** The SDL_image library for loading various image formats.
+- **SFML Library:** The SFML library for windowing and event handling.
 
 Please refer to the respective libraries' official documentation for installation instructions on your platform.
 
@@ -43,12 +42,11 @@ Follow these steps to set up and use the framework:
 3. **Build the project using the provided build system (e.g., Makefile):**
 
    ```bash
+    conan install . --build=missing
     mkdir build
     cd build
     cmake ..
-    cmake --build . --config Release # for Release version
-    # OR
-    cmake --build . --config Debug # for Debug version
+    cmake --build . --config
 
 4. **Run the Sample Application:**
 

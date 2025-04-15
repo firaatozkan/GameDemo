@@ -1,7 +1,7 @@
-#include "GameWindow.hpp"
+#include "Core/Engine.hpp"
 
 int main()
 {
-    GameWindow::get().run();
+    Core::Engine::get().run();
     return 0;
 }

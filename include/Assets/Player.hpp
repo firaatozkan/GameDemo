@@ -12,6 +12,17 @@ namespace Assets
     private:
         static constexpr float MASS = 40.0f;
 
+        enum InputFlags
+        {
+            None = 0,
+            Left = 1 << 0,
+            Right = 1 << 1,
+            Jump = 1 << 2,
+            Run = 1 << 3,
+            Attack1 = 1 << 4,
+            Attack2 = 1 << 5,
+        };
+
     public:
         Player(float x = 0.f, float y = 0.f);
 
@@ -23,5 +34,8 @@ namespace Assets
         sf::FloatRect getBounds() const override;
 
         void runAnimationLogic() override;
+
+    private:
+        uint8_t m_inputFlags = None;
     };
 }

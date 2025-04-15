@@ -51,6 +51,11 @@ namespace Scenes
         m_cameraRef.update(*m_player);
     }
 
+    sf::Color GameScene::getBackgroundColor() const
+    {
+        return {100, 149, 237};
+    }
+
     void GameScene::draw() const
     {
         for (const auto& object : m_objects)

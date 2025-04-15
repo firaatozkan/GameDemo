@@ -21,6 +21,8 @@ namespace Scenes
 
         void update(float dt) override;
 
+        sf::Color getBackgroundColor() const override;
+
         void draw() const override;
 
     private:

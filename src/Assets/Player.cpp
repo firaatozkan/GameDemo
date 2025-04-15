@@ -9,18 +9,19 @@ namespace Assets
         m_position.x = x;
         m_position.y = y;
 
-        m_animator.addAnimation("Idle", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Idle.png)", 8, 0.1f));
-        m_animator.addAnimation("Walk", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Walk.png)", 8, 0.1f));
-        m_animator.addAnimation("Run", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Run.png)", 8, 0.1f));
-        m_animator.addAnimation("Jump", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Jump.png)", 8, 0.1f, true));
-        m_animator.addAnimation("Hurt", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Hurt.png)", 3, 0.1f, true));
-        m_animator.addAnimation("Attack", new Graphics::Animation(R"(C:\Dev\GameDemo\assets\Swordsman\Attack_3.png)", {0.1f, 0.1f, 0.125f, 0.45f}, true));
+        m_animator.addAnimation("Idle", new Graphics::Animation(ASSETS_DIR "Swordsman/Idle.png", 8, 0.1f));
+        m_animator.addAnimation("Walk", new Graphics::Animation(ASSETS_DIR "Swordsman/Walk.png", 8, 0.1f));
+        m_animator.addAnimation("Run", new Graphics::Animation(ASSETS_DIR "Swordsman/Run.png", 8, 0.1f));
+        m_animator.addAnimation("Jump", new Graphics::Animation(ASSETS_DIR "Swordsman/Jump.png", 8, 0.1f, true));
+        m_animator.addAnimation("Hurt", new Graphics::Animation(ASSETS_DIR "Swordsman/Hurt.png", 3, 0.1f, true));
+        m_animator.addAnimation("Attack1", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_3.png", {0.1f, 0.1f, 0.125f, 0.45f}, true));
+        m_animator.addAnimation("Attack2", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_2.png", {0.1f, 0.16f, 0.6f}, true));
         m_animator.setCurrent("Idle");
     }
 
     sf::FloatRect Player::getBounds() const
     {
-        if (m_animator.getCurrent() == "Attack")
+        if (m_animator.getCurrent() == "Attack1")
             return {m_position.x, m_position.y, 50, 128};
 
         return {m_position.x, m_position.y, 30, 128};
@@ -30,15 +31,34 @@ namespace Assets
     {
         const auto& current = m_animator.getCurrent();
 
-        if (input.type == sf::Event::MouseButtonPressed)
+        if (input.type == sf::Event::MouseButtonPressed ||
+            input.type == sf::Event::MouseButtonReleased)
         {
             switch (input.mouseButton.button)
             {
             case sf::Mouse::Left:
-                if (m_velocity.x != 0.f)
-                    m_velocity.x /= 1.6f;
+                if (input.type == sf::Event::MouseButtonPressed)
+                {
+                    m_velocity.x /= 6.f;
+                    m_inputFlags |= Attack1;
+                    m_animator.setCurrent("Attack1");
+                }
+                else if (input.type == sf::Event::MouseButtonReleased)
+                    m_inputFlags &= ~Attack1;
 
-                m_animator.setCurrent("Attack");
+                break;
+            case sf::Mouse::Right:
+                if (input.type == sf::Event::MouseButtonPressed)
+                {
+                    m_velocity.x /= 6.f;
+                    m_inputFlags |= Attack2;
+                    m_animator.setCurrent("Attack2");
+                }
+                else if (input.type == sf::Event::MouseButtonReleased)
+                    m_inputFlags &= ~Attack2;
+
+                break;
+            default:
                 break;
             }
         }
@@ -46,37 +66,25 @@ namespace Assets
         {
             switch (input.key.scancode)
             {
-            case sf::Keyboard::W:
-                m_velocity.y = -200.0f;
-                m_animator.setCurrent("Jump");
+            case sf::Keyboard::A:
+                m_inputFlags |= Left;
                 break;
 
             case sf::Keyboard::D:
-                if (current != "Attack" &&
-                    current != "Jump")
-                {
-                    m_velocity.x = 150.0f;
-                    m_animator.setCurrent("Walk");
-                }
-                m_flipped = false;
+                m_inputFlags |= Right;
                 break;
 
-            case sf::Keyboard::A:
-                if (current != "Attack" &&
-                    current != "Jump")
+            case sf::Keyboard::W:
+                m_inputFlags |= Jump;
+                if (m_onGround)
                 {
-                    m_velocity.x = -150.0f;
-                    m_animator.setCurrent("Walk");
+                    m_velocity.y -= 200.f;
+                    m_animator.setCurrent("Jump");
                 }
-                m_flipped = true;
                 break;
 
             case sf::Keyboard::P:
-                if (current == "Walk")
-                {
-                    m_velocity.x *= 1.6f;
-                    m_animator.setCurrent("Run");
-                }
+                m_inputFlags |= Run;
                 break;
 
             default:
@@ -87,24 +95,20 @@ namespace Assets
         {
             switch (input.key.scancode)
             {
-            case sf::Keyboard::P:
-                if (current == "Run")
-                {
-                    m_velocity.x /= 1.6f;
-                    m_animator.setCurrent("Walk");
-                }
+            case sf::Keyboard::A:
+                m_inputFlags &= ~Left;
                 break;
 
-            case sf::Keyboard::A:
-                [[fallthrough]];
             case sf::Keyboard::D:
-                [[fallthrough]];
-            default:
-                if (current != "Jump")
-                {
-                    m_velocity.x = 0.f;
-                    m_animator.setCurrent("Idle");
-                }
+                m_inputFlags &= ~Right;
+                break;
+
+            case sf::Keyboard::W:
+                m_inputFlags &= ~Jump;
+                break;
+
+            case sf::Keyboard::P:
+                m_inputFlags &= ~Run;
                 break;
             }
         }
@@ -112,15 +116,35 @@ namespace Assets
 
     void Player::runAnimationLogic()
     {
-        if (m_animator.getCurrent() == "Attack" &&
-            m_animator.getCurrentAnimation().isFinished())
+        const auto& current = m_animator.getCurrent();
+        const auto& currentAnim = m_animator.getCurrentAnimation();
+
+        const bool stillAttacking = (current == "Attack1" || current == "Attack2") &&
+                                    !currentAnim.isFinished();
+
+        const bool stillJumping = (current == "Jump") &&
+                                  !m_onGround;
+
+        if (stillAttacking || stillJumping)
+            return;
+
+        const bool left = m_inputFlags & Left;
+        const bool right = m_inputFlags & Right;
+        const bool run = m_inputFlags & Run;
+
+        if (left && !right)
         {
-            m_velocity.x = 0.f;
-            m_animator.setCurrent("Idle");
+            m_velocity.x = run ? -240.f : -150.f;
+            m_flipped = true;
+            m_animator.setCurrent(run ? "Run" : "Walk");
         }
-        else if (m_animator.getCurrent() == "Jump" &&
-                 m_animator.getCurrentAnimation().isFinished() &&
-                 m_onGround)
+        else if (right && !left)
+        {
+            m_velocity.x = run ? 240.f : 150.f;
+            m_flipped = false;
+            m_animator.setCurrent(run ? "Run" : "Walk");
+        }
+        else if (m_onGround)
         {
             m_velocity.x = 0.f;
             m_animator.setCurrent("Idle");

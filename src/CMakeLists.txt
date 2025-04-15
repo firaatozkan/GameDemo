@@ -15,3 +15,5 @@ target_link_libraries(
     PRIVATE
     sfml::sfml
 )
+
+add_compile_definitions(ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets/")

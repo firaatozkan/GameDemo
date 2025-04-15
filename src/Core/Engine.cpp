@@ -34,7 +34,7 @@ namespace Core
             const float deltaTime = clock.restart().asSeconds();
             m_scene->update(deltaTime);
 
-            m_window.clear();
+            m_window.clear(m_scene->getBackgroundColor());
             m_scene->draw();
             m_window.display();
         }

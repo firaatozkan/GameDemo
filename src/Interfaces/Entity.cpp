@@ -11,6 +11,7 @@ namespace Interfaces
 
     void Entity::updateVelocity(float deltaTime)
     {
+        m_onGround = false;
         m_velocity.y += deltaTime * 9.81f * m_mass;
     }
 
@@ -40,6 +41,10 @@ namespace Interfaces
     void Entity::updatePosition(float deltaTime)
     {
         m_position += m_velocity * deltaTime;
+        if (m_position.x < -static_cast<float>(Assets::TileMap::TILE_SIZE))
+            m_position.x = -64.f;
+        else if (m_position.x > static_cast<float>(Core::Engine::WORLD_WIDTH - Assets::TileMap::TILE_SIZE))
+            m_position.x = static_cast<float>(Core::Engine::WORLD_WIDTH - Assets::TileMap::TILE_SIZE);
     }
 
     void Entity::draw() const

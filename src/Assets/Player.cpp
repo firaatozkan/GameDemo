@@ -14,8 +14,8 @@ namespace Assets
         m_animator.addAnimation("Run", new Graphics::Animation(ASSETS_DIR "Swordsman/Run.png", 8, 0.1f));
         m_animator.addAnimation("Jump", new Graphics::Animation(ASSETS_DIR "Swordsman/Jump.png", 8, 0.1f, true));
         m_animator.addAnimation("Hurt", new Graphics::Animation(ASSETS_DIR "Swordsman/Hurt.png", 3, 0.1f, true));
-        m_animator.addAnimation("Attack1", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_3.png", {0.1f, 0.1f, 0.125f, 0.45f}, true));
-        m_animator.addAnimation("Attack2", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_2.png", {0.1f, 0.16f, 0.6f}, true));
+        m_animator.addAnimation("Attack1", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_3.png", {0.1f, 0.1f, 0.125f, 0.6f}, true));
+        m_animator.addAnimation("Attack2", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_2.png", {0.1f, 0.24f, 0.6f}, true));
         m_animator.setCurrent("Idle");
     }
 
@@ -31,56 +31,44 @@ namespace Assets
     {
         const auto& current = m_animator.getCurrent();
 
-        if (input.type == sf::Event::MouseButtonPressed ||
-            input.type == sf::Event::MouseButtonReleased)
+        if (input.type == sf::Event::MouseButtonPressed)
         {
             switch (input.mouseButton.button)
             {
             case sf::Mouse::Left:
-                if (input.type == sf::Event::MouseButtonPressed)
-                {
-                    m_velocity.x /= 6.f;
-                    m_inputFlags |= Attack1;
-                    m_animator.setCurrent("Attack1");
-                }
-                else if (input.type == sf::Event::MouseButtonReleased)
-                    m_inputFlags &= ~Attack1;
-
+                m_velocity.x /= 6.f;
+                m_animator.setCurrent("Attack1");
                 break;
+
             case sf::Mouse::Right:
-                if (input.type == sf::Event::MouseButtonPressed)
-                {
-                    m_velocity.x /= 6.f;
-                    m_inputFlags |= Attack2;
-                    m_animator.setCurrent("Attack2");
-                }
-                else if (input.type == sf::Event::MouseButtonReleased)
-                    m_inputFlags &= ~Attack2;
-
+                m_velocity.x /= 6.f;
+                m_animator.setCurrent("Attack2");
                 break;
+
             default:
                 break;
             }
         }
-        else if (input.type == sf::Event::KeyPressed)
+
+        if (input.type == sf::Event::KeyPressed)
         {
             switch (input.key.scancode)
             {
+            case sf::Keyboard::W:
+                if (m_onGround)
+                {
+                    m_velocity.y = -200.f;
+                    m_animator.setCurrent("Jump");
+                    m_onGround = false;
+                }
+                break;
+
             case sf::Keyboard::A:
                 m_inputFlags |= Left;
                 break;
 
             case sf::Keyboard::D:
                 m_inputFlags |= Right;
-                break;
-
-            case sf::Keyboard::W:
-                m_inputFlags |= Jump;
-                if (m_onGround)
-                {
-                    m_velocity.y -= 200.f;
-                    m_animator.setCurrent("Jump");
-                }
                 break;
 
             case sf::Keyboard::P:
@@ -101,10 +89,6 @@ namespace Assets
 
             case sf::Keyboard::D:
                 m_inputFlags &= ~Right;
-                break;
-
-            case sf::Keyboard::W:
-                m_inputFlags &= ~Jump;
                 break;
 
             case sf::Keyboard::P:

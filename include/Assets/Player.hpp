@@ -17,10 +17,7 @@ namespace Assets
             None = 0,
             Left = 1 << 0,
             Right = 1 << 1,
-            Jump = 1 << 2,
-            Run = 1 << 3,
-            Attack1 = 1 << 4,
-            Attack2 = 1 << 5,
+            Run = 1 << 2,
         };
 
     public:

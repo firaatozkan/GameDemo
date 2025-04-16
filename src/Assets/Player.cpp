@@ -31,36 +31,39 @@ namespace Assets
     {
         const auto& current = m_animator.getCurrent();
 
-        if (input.type == sf::Event::MouseButtonPressed)
+        if (input.type == sf::Event::MouseButtonPressed || 
+            input.type == sf::Event::MouseButtonReleased)
         {
             switch (input.mouseButton.button)
             {
             case sf::Mouse::Left:
-                m_velocity.x /= 6.f;
-                m_animator.setCurrent("Attack1");
+                if (input.type == sf::Event::MouseButtonPressed)
+                    m_inputFlags |= Attack1;
+
+                else if (input.type == sf::Event::MouseButtonReleased)
+                    m_inputFlags &= ~Attack1;
+
                 break;
 
             case sf::Mouse::Right:
-                m_velocity.x /= 6.f;
-                m_animator.setCurrent("Attack2");
+                if (input.type == sf::Event::MouseButtonPressed)
+                    m_inputFlags |= Attack2;
+
+                else if (input.type == sf::Event::MouseButtonReleased)
+                    m_inputFlags &= ~Attack2;
+
                 break;
 
             default:
                 break;
             }
         }
-
-        if (input.type == sf::Event::KeyPressed)
+        else if (input.type == sf::Event::KeyPressed)
         {
             switch (input.key.scancode)
             {
             case sf::Keyboard::W:
-                if (m_onGround)
-                {
-                    m_velocity.y = -200.f;
-                    m_animator.setCurrent("Jump");
-                    m_onGround = false;
-                }
+                m_inputFlags |= Jump;
                 break;
 
             case sf::Keyboard::A:
@@ -83,6 +86,10 @@ namespace Assets
         {
             switch (input.key.scancode)
             {
+            case sf::Keyboard::W:
+                m_inputFlags &= ~Jump;
+                break;
+
             case sf::Keyboard::A:
                 m_inputFlags &= ~Left;
                 break;
@@ -100,31 +107,41 @@ namespace Assets
 
     void Player::runAnimationLogic()
     {
-        const auto& current = m_animator.getCurrent();
-        const auto& currentAnim = m_animator.getCurrentAnimation();
-
-        const bool stillAttacking = (current == "Attack1" || current == "Attack2") &&
-                                    !currentAnim.isFinished();
-
-        const bool stillJumping = (current == "Jump") &&
-                                  !m_onGround;
-
-        if (stillAttacking || stillJumping)
+        if (isAttacking())
             return;
 
+        const bool attack1 = m_inputFlags & Attack1;
+        const bool attack2 = m_inputFlags & Attack2;
+        const bool jump = m_inputFlags & Jump;
         const bool left = m_inputFlags & Left;
         const bool right = m_inputFlags & Right;
         const bool run = m_inputFlags & Run;
 
-        if (left && !right)
+        if (attack1 || attack2)
         {
-            m_velocity.x = run ? -240.f : -150.f;
+            m_animator.setCurrent(attack1 ? "Attack1" : "Attack2");
+            m_velocity.x /= ATTACK_SPEED_MULTIPLIER;
+            return;
+        }
+
+        if (isJumping())
+            return;
+
+        if (jump)
+        {
+            m_velocity.y = -JUMP_SPEED;
+            m_animator.setCurrent("Jump");
+            m_onGround = false;
+        }
+        else if (left && !right)
+        {
+            m_velocity.x = run ? -RUN_SPEED : -WALK_SPEED;
             m_flipped = true;
             m_animator.setCurrent(run ? "Run" : "Walk");
         }
         else if (right && !left)
         {
-            m_velocity.x = run ? 240.f : 150.f;
+            m_velocity.x = run ? RUN_SPEED : WALK_SPEED;
             m_flipped = false;
             m_animator.setCurrent(run ? "Run" : "Walk");
         }
@@ -133,5 +150,22 @@ namespace Assets
             m_velocity.x = 0.f;
             m_animator.setCurrent("Idle");
         }
+    }
+
+    bool Player::isAttacking() const
+    {
+        const auto& current = m_animator.getCurrent();
+        const auto& currentAnim = m_animator.getCurrentAnimation();
+
+        return (current == "Attack1" || current == "Attack2") &&
+               !currentAnim.isFinished();
+    }
+
+    bool Player::isJumping() const
+    {
+        const auto& current = m_animator.getCurrent();
+
+        return (current == "Jump") &&
+               !m_onGround;
     }
 }

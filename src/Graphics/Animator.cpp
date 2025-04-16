@@ -23,7 +23,7 @@ namespace Graphics
 
     const Animation& Animator::getCurrentAnimation() const
     {
-        return* m_animations.at(m_current);
+        return *m_animations.at(m_current);
     }
 
     void Animator::update(float deltaTime)

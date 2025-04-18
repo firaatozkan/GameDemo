@@ -14,8 +14,9 @@ namespace Assets
         m_animator.addAnimation("Run", new Graphics::Animation(ASSETS_DIR "Swordsman/Run.png", 8, 0.1f));
         m_animator.addAnimation("Jump", new Graphics::Animation(ASSETS_DIR "Swordsman/Jump.png", 8, 0.1f, true));
         m_animator.addAnimation("Hurt", new Graphics::Animation(ASSETS_DIR "Swordsman/Hurt.png", 3, 0.1f, true));
-        m_animator.addAnimation("Attack1", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_3.png", {0.1f, 0.1f, 0.125f, 0.6f}, true));
-        m_animator.addAnimation("Attack2", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_2.png", {0.1f, 0.24f, 0.6f}, true));
+        m_animator.addAnimation("Attack1", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_3.png", {0.1f, 0.1f, 0.1f, 0.6f}, true));
+        m_animator.addAnimation("Attack2", new Graphics::Animation(ASSETS_DIR "Swordsman/Attack_2.png", {0.1f, 0.1f, 0.6f}, true));
+        m_animator.addAnimation("Dead", new Graphics::Animation(ASSETS_DIR "Swordsman/Dead.png", {0.1f, 0.24f, 0.6f}, true));
         m_animator.setCurrent("Idle");
     }
 
@@ -107,8 +108,19 @@ namespace Assets
 
     void Player::runAnimationLogic()
     {
-        if (isAttacking())
+        if (isDying() || isAttacking())
             return;
+
+        if (m_health <= 0.f)
+        {
+            if (m_animator.getCurrent() != "Dead")
+                m_animator.setCurrent("Dead");
+        
+            m_velocity.x = 0.f;
+            return;
+        }
+
+        // m_health -= 0.5f; for testing purposes of death animation
 
         const bool attack1 = m_inputFlags & Attack1;
         const bool attack2 = m_inputFlags & Attack2;
@@ -167,5 +179,21 @@ namespace Assets
 
         return (current == "Jump") &&
                !m_onGround;
+    }
+
+    bool Player::isDying() const
+    {
+        const auto& current = m_animator.getCurrent();
+
+        return m_health <= 0.f &&
+               current == "Dead";
+    }
+
+    bool Player::isDead() const
+    {
+        const auto& currentAnim = m_animator.getCurrentAnimation();
+
+        return isDying() &&
+               currentAnim.isFinished();
     }
 }

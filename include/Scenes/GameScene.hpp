@@ -28,7 +28,10 @@ namespace Scenes
     private:
         void addObject(std::unique_ptr<Interfaces::GameObject> object);
 
+        void removeObject(Interfaces::GameObject& object);
+
         Core::Camera& m_cameraRef;
+        bool m_shouldRemovePlayer {false};
         Assets::Player* m_player {nullptr};
         std::vector<std::unique_ptr<Interfaces::GameObject>> m_objects;
         std::vector<std::reference_wrapper<Interfaces::CollidableObject>> m_collidableObjects;

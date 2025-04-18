@@ -34,7 +34,11 @@ namespace Assets
 
         void handleInputs(const sf::Event& input);
 
+        bool isDead() const;
+
     private:
+        bool isDying() const;
+
         bool isAttacking() const;
 
         bool isJumping() const;
@@ -46,5 +50,6 @@ namespace Assets
 
     private:
         uint8_t m_inputFlags = None;
+        float m_health = 100.f;
     };
 }

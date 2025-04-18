@@ -60,19 +60,19 @@ namespace Graphics
 
         if (m_currentTime >= m_frameVector[m_frameIndex].second)
         {
-            m_sprite.setTextureRect(m_frameVector[m_frameIndex++].first);
             m_currentTime = 0.0f;
 
-            if (m_frameIndex >= m_frameVector.size())
+            if (m_frameIndex + 1 >= m_frameVector.size())
             {
-                if (!m_oneShot)
-                    m_frameIndex = 0;
-                else
-                {
+                if (m_oneShot)
                     m_finished = true;
-                    m_frameIndex = m_frameVector.size() - 1;
-                }
+                else
+                    m_frameIndex = 0;
             }
+            else
+                ++m_frameIndex;
+
+            m_sprite.setTextureRect(m_frameVector[m_frameIndex].first);
         }
     }
 
@@ -103,6 +103,8 @@ namespace Graphics
     {
         m_frameIndex = 0;
         m_finished = false;
+        m_currentTime = 0.f;
+        m_sprite.setTextureRect(m_frameVector.front().first);
     }
 
     bool Animation::isFinished() const

@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "Core/Engine.hpp"
 #include "Scenes/GameScene.hpp"
 
@@ -49,6 +50,12 @@ namespace Scenes
             entity.updateAnimation(dt);
 
         m_cameraRef.update(*m_player);
+    
+        if (m_player->isDead())
+        {
+            std::cout << "You died!\n";
+            Core::Engine::get().quit();
+        }
     }
 
     sf::Color GameScene::getBackgroundColor() const
@@ -64,18 +71,44 @@ namespace Scenes
 
     void GameScene::addObject(std::unique_ptr<Interfaces::GameObject> object)
     {
-        auto collidable = dynamic_cast<Interfaces::CollidableObject*>(object.get());
+        const auto collidable = dynamic_cast<Interfaces::CollidableObject*>(object.get());
         if (collidable)
             m_collidableObjects.emplace_back(*collidable);
 
-        auto entity = dynamic_cast<Interfaces::Entity*>(collidable);
+        const auto entity = dynamic_cast<Interfaces::Entity*>(collidable);
         if (entity)
             m_entities.emplace_back(*entity);
 
-        auto player = dynamic_cast<Assets::Player*>(entity);
+        const auto player = dynamic_cast<Assets::Player*>(entity);
         if (player)
             m_player = player;
 
         m_objects.emplace_back(std::move(object));
+    }
+
+    void GameScene::removeObject(Interfaces::GameObject& object)
+    {
+        if (m_player == &object)
+            m_player = nullptr;
+
+        if (const auto it = std::find_if(m_entities.begin(),
+                                         m_entities.end(),
+                                         [&object] (const Interfaces::Entity& entity) { return (void *)&entity == (void *)&object; });
+            it != m_entities.end())
+        {
+            m_entities.erase(it);
+        }
+
+        if (const auto it = std::find_if(m_collidableObjects.begin(),
+                                         m_collidableObjects.end(),
+                                         [&object] (const Interfaces::CollidableObject& collidable) { return (void *)&collidable == (void *)&object; });
+            it != m_collidableObjects.end())
+        {
+            m_collidableObjects.erase(it);
+        }
+
+        m_objects.erase(std::find_if(m_objects.begin(),
+                                     m_objects.end(),
+                                     [&object] (const auto& ptr) { return ptr.get() == &object; }));
     }
 }

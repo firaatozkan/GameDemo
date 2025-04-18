@@ -70,15 +70,12 @@ namespace Assets
     void TileMap::applyCollision(Interfaces::CollidableObject &other,
                                  const sf::FloatRect &intersection)
     {
-        auto entity = dynamic_cast<Interfaces::Entity *>(&other);
-        if (entity)
+        auto& entity = reinterpret_cast<Interfaces::Entity&>(other);
+        auto& entityVelocity = entity.getVelocity();
+        if (entityVelocity.y > 0)
         {
-            auto &entityVelocity = entity->getVelocity();
-            if (entityVelocity.y > 0)
-            {
-                entity->getPosition().y = getBounds().top - entity->getBounds().height;
-                entity->setOnGround();
-            }
+            entity.getPosition().y = getBounds().top - entity.getBounds().height;
+            entity.setOnGround();
         }
     }
 
